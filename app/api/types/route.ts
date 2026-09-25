@@ -13,15 +13,22 @@ const sectionPaths: Record<string, string> = {
 };
 
 function getToken(request: Request) {
-  return request.headers
-    .get("cookie")
-    ?.split(";")
-    .find((cookie) =>
-      cookie.trim().startsWith(`${COOKIE_NAME}=`)
-    )
-    ?.split("=")
-    .slice(1)
-    .join("=");
+  const cookieHeader = request.headers.get("cookie");
+
+  if (!cookieHeader) {
+    return undefined;
+  }
+
+  const cookie = cookieHeader
+    .split(";")
+    .map((item) => item.trim())
+    .find((item) => item.startsWith(`${COOKIE_NAME}=`));
+
+  if (!cookie) {
+    return undefined;
+  }
+
+  return decodeURIComponent(cookie.slice(COOKIE_NAME.length + 1));
 }
 
 function getTypes(section?: string) {
